@@ -5,6 +5,7 @@
 namespace RP {
     class NameGeneratorIOC {
         static const NameGeneratorIOC instance;
+        NameGeneratorIOC();
     public:
         static NameGenerator getInstance();
         NameGenerator constructNameGenerator() const;
