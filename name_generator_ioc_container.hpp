@@ -7,7 +7,7 @@ namespace RP {
         static NameGeneratorIOC instance;
         NameGeneratorIOC();
     public:
-        static NameGeneratorIOC& getInstance();
+        static NameGeneratorIOC& getInstance() noexcept;
         NameGenerator constructNameGenerator() const;
     };
 }

@@ -3,7 +3,7 @@
 namespace RP {
     NameGeneratorIOC NameGeneratorIOC::instance;
     NameGeneratorIOC::NameGeneratorIOC() {}
-    NameGeneratorIOC& NameGeneratorIOC::getInstance() {
+    NameGeneratorIOC& NameGeneratorIOC::getInstance() noexcept {
         return instance;
     }
     NameGenerator NameGeneratorIOC::constructNameGenerator() const {
