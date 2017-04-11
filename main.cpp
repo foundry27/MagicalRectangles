@@ -1,147 +1,11 @@
-#include <string>
-#include <map>
-#include <type_traits>
-#include <functional>
 #include <iostream>
-#include <experimental/optional>
 #include <limits>
 #include <locale>
-
-namespace RP {
-
-    template <typename T>
-    struct Vector2 {
-        const std::enable_if_t<std::is_integral<T>::value, T> x, y;
-
-        const std::string toString() const noexcept {
-            return "(" + std::to_string(x) + ", " + std::to_string(y) + ")";
-        }
-    };
-
-    template <typename T>
-    struct Shape {
-        virtual const T getPerimeter() const noexcept = 0;
-
-        virtual const T getArea() const noexcept = 0;
-    };
-
-    template <typename T>
-    struct Rectangle : Shape<T> {
-        const Vector2<T> bottomLeft, topRight;
-
-        const std::string name;
-
-        Rectangle(const Vector2<T>&& bottomLeft, const Vector2<T>&& topRight, const std::string&& name)
-                : bottomLeft(bottomLeft), topRight(topRight), name(name) {}
-
-        virtual const T getPerimeter() const noexcept override {
-            return 2 * ((topRight.x - bottomLeft.x) + (topRight.y - bottomLeft.y));
-        }
-
-        virtual const T getArea() const noexcept override {
-            return (topRight.x - bottomLeft.x) * (topRight.y - bottomLeft.y);
-        }
-
-        const Rectangle<T> getUnionRectangle(const Rectangle<T>& rect) const noexcept {
-            return Rectangle<T> {{std::min(bottomLeft.x, rect.bottomLeft.x), std::min(bottomLeft.y, rect.bottomLeft.y)},
-                                 {std::max(topRight.x, rect.topRight.x), std::max(topRight.y, rect.topRight.y)},
-                                 "<" + name + " + " + rect.name + ">"};
-        }
-
-        const std::experimental::optional<Rectangle<T>> findIntersectionRectangle(const Rectangle<T>& rect) const noexcept {
-            const T x5 = std::max(bottomLeft.x, rect.bottomLeft.x);
-            const T x6 = std::min(topRight.x, rect.topRight.x);
-
-            if (x5 > x6) return {};
-
-            const T y5 = std::max(bottomLeft.y, rect.bottomLeft.y);
-            const T y6 = std::min(topRight.y, rect.topRight.y);
-
-            if (y5 > y6) return {};
-
-            return Rectangle<T> {{x5, y5}, {x6, y6}, "<" + name + " / " + rect.name + ">"};
-        }
-
-        const bool containsPoint(const Vector2<T>& point) const noexcept {
-            return (point.x >= bottomLeft.x && point.x <= topRight.x) && (point.y >= bottomLeft.y && point.y <= topRight.y);
-        }
-
-        const std::string toString() const noexcept {
-            return "\"" + name + "\" - " + bottomLeft.toString() + " - " + topRight.toString();
-        }
-    };
-
-    struct IllegalNameError {
-        const std::string what;
-    };
-
-    struct IllegalSizeError {
-        const std::string what;
-    };
-
-    template <typename T>
-    class Grid {
-    public:
-        Grid(const T height, const T width) : height(height), width(width), rects({}) {}
-
-        void forEach(const std::function<void (const Rectangle<T>&)> consumer) const noexcept {
-            for (const auto& r : rects) {
-                consumer(r.second);
-            }
-        }
-
-        void addRectangle(const Rectangle<T>&& rect) {
-            validateRectangle(rect);
-            rects.insert({rect.name, rect});
-        }
-
-        const bool removeRectangleByName(const std::string& name) noexcept {
-            if (!rects.count(name)) {
-                return false;
-            } else {
-                rects.erase(name);
-                return true;
-            }
-        }
-
-        const std::experimental::optional<Rectangle<T>> findRectangleByName(const std::string& name) const noexcept {
-            const auto lookup = rects.find(name);
-            if (lookup == rects.end()) {
-                return {};
-            }
-            return lookup -> second;
-        }
-
-    private:
-        const Rectangle<T>& getRectangleByName(const std::string& name) const {
-            const auto lookup = rects.find(name);
-            if (lookup == rects.end()) {
-                throw IllegalNameError {"No rectangle with name " + name + " exists in this grid"};
-            }
-            return lookup -> second;
-        }
-
-        void validateRectangle(const Rectangle<T>& rect) const {
-            if (rects.count(rect.name)) {
-                throw IllegalNameError {"A rectangle named " + rect.name + " already exists in this grid"};
-            }
-            if (rect.bottomLeft.y > rect.topRight.y) {
-                throw IllegalSizeError {"Rectangle " + rect.name + " must have a lower left corner with a lower X coordinate than its upper right corner"};
-            } else if (rect.bottomLeft.x > rect.topRight.x) {
-                throw IllegalSizeError {"Rectangle " + rect.name + " must have a lower left corner with a lower Y coordinate than its upper right corner"};
-            }
-            if (rect.topRight.x > width) {
-                throw IllegalSizeError {"Rectangle " + rect.name + " has width exceeding grid width " + std::to_string(width)};
-            } else if (rect.topRight.y > height) {
-                throw IllegalSizeError {"Rectangle " + rect.name + " has height exceeding grid height " + std::to_string(height)};
-            }
-        }
-
-        const T height, width;
-
-        std::map<std::string, Rectangle<T>> rects;
-    };
-}
+#include "rp/vector2.hpp"
+#include "rp/shape.hpp"
+#include "rp/rectangle.hpp"
+#include "rp/grid.hpp"
+#include "rp/rect_generator.hpp"
 
 inline void clearScreen() {
     system("clear");
@@ -365,6 +229,8 @@ void checkIfPointInRectangle(const RP::Grid<int>& grid) {
 int main() {
     RP::Grid<int> grid{600, 400};
     clearScreen();
+    RP::RectGenerator<int> rectGenerator;
+    rectGenerator.addRandomRectangleToGrid(grid);
     for (;;) {
         std::cout << "Rectangle Program Menu Options\n------------------------------\n"
                   << "1. Print rectangles\n"
