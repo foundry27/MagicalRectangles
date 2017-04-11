@@ -1,13 +1,13 @@
 #ifndef NAME_GENERATOR_IOC
 #define NAME_GENERATOR_IOC
-#include "name_generator"
+#include "name_generator.hpp"
 
 namespace RP {
     class NameGeneratorIOC {
-        static const NameGeneratorIOC instance;
+        static NameGeneratorIOC instance;
         NameGeneratorIOC();
     public:
-        static NameGenerator getInstance();
+        static NameGeneratorIOC& getInstance();
         NameGenerator constructNameGenerator() const;
     };
 }
