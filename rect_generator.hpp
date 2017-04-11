@@ -9,24 +9,25 @@ namespace RP {
     public:
         RectGenerator() : nameGenerator(NameGeneratorIOC::getInstance().constructNameGenerator()) {}
 
-        void addRandomRectangleToGrid(const Grid& grid) {
+        void addRandomRectangleToGrid(const Grid<T>& grid) {
             std::string name;
             while (true) {
                 name = nameGenerator.generateName();
-                bool nameAvailable = !grid.getRectangleByName(name).has_value();
+                bool nameAvailable = !grid.findRectangleByName(name).has_value();
                 if (nameAvailable) {
                     break;
                 }
             }
 
-            Point<T> topRight;
-            Point<T> bottomLeft;
+            Vector2<T> topRight;
+            Vector2<T> bottomLeft;
 
             topRight.x = rand() % (grid.width + 1);
             topRight.y = rand() % (grid.height + 1);
 
             bottomLeft.x = rand() % (topRight.x);
             bottomLeft.y = rand() % (topRight.y);
+            grid.addRectangle( { bottomLeft, topRight, name } );
         }
 
     };
