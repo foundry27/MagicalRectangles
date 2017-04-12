@@ -5,6 +5,7 @@
 #include "rp/shape.hpp"
 #include "rp/rectangle.hpp"
 #include "rp/grid.hpp"
+#include "rp/rect_generator.hpp"
 
 inline void clearScreen() {
     system("clear");
@@ -228,6 +229,8 @@ void checkIfPointInRectangle(const RP::Grid<int>& grid) {
 int main() {
     RP::Grid<int> grid{600, 400};
     clearScreen();
+    RP::RectGenerator<int> rectGenerator;
+    rectGenerator.addRandomRectangleToGrid(grid);
     for (;;) {
         std::cout << "Rectangle Program Menu Options\n------------------------------\n"
                   << "1. Print rectangles\n"

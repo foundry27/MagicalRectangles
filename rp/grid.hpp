@@ -44,6 +44,14 @@ namespace RP {
             return lookup -> second;
         }
 
+        T getHeight() const noexcept {
+            return height;
+        }
+
+        T getWidth() const noexcept {
+            return width;
+        }
+
     private:
         void validateRectangle(const Rectangle<T>& rect) const {
             if (rects.count(rect.name)) {
