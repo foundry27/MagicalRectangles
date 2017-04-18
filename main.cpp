@@ -7,17 +7,17 @@
 #include "rp/grid.hpp"
 #include "rp/rect_generator.hpp"
 
-inline void clearScreen() {
+static inline void clearScreen() {
     system("clear");
 }
 
-inline void promptForEnterKeyAndAdvanceLine() {
+static inline void promptForEnterKeyAndAdvanceLine() {
     std::cout << "Press enter to continue." << std::flush;
     system("read");
     std::cout << std::endl;
 }
 
-void printRectangles(RP::Grid<int>& grid) {
+static void printRectangles(RP::Grid<int>& grid) {
     std::cout << "Rectangles currently present in grid\n------------------------------\n";
     grid.forEach([](const RP::Rectangle<int>& r) {
        std::cout << "\"" << r.name << "\" - " << r.bottomLeft.toString() << " - " << r.topRight.toString() << std::endl;
@@ -25,7 +25,7 @@ void printRectangles(RP::Grid<int>& grid) {
     std::cout << "------------------------------\n";
 }
 
-void addRectangleToGrid(RP::Grid<int>& grid) {
+static void addRectangleToGrid(RP::Grid<int>& grid) {
     int lowerLeftX, lowerLeftY, upperRightX, upperRightY;
     std::string name;
 
@@ -108,7 +108,7 @@ void addRectangleToGrid(RP::Grid<int>& grid) {
     }
 }
 
-void removeRectangleFromGrid(RP::Grid<int>& grid) {
+static void removeRectangleFromGrid(RP::Grid<int>& grid) {
     std::cout << "Enter the name of this rectangle: ";
     std::string name;
     std::cin >> name;
@@ -121,7 +121,7 @@ void removeRectangleFromGrid(RP::Grid<int>& grid) {
     printRectangles(grid);
 }
 
-void getRectangleIntersection(RP::Grid<int>& grid) {
+static void getRectangleIntersection(RP::Grid<int>& grid) {
     for (;;) {
         std::cout << "Enter the name of the first rectangle: ";
         std::string firstRectName;
@@ -154,7 +154,7 @@ void getRectangleIntersection(RP::Grid<int>& grid) {
     }
 }
 
-void getRectangleUnion(RP::Grid<int>& grid) {
+static void getRectangleUnion(RP::Grid<int>& grid) {
     for (;;) {
         std::cout << "Enter the name of the first rectangle: ";
         std::string firstRectName;
@@ -184,7 +184,7 @@ void getRectangleUnion(RP::Grid<int>& grid) {
     }
 }
 
-void checkIfPointInRectangle(const RP::Grid<int>& grid) {
+static void checkIfPointInRectangle(const RP::Grid<int>& grid) {
     for (;;) {
         std::cout << "Enter the name of the rectangle to check: ";
         std::string rectName;
@@ -226,7 +226,7 @@ void checkIfPointInRectangle(const RP::Grid<int>& grid) {
     }
 }
 
-void createRandomRectangles(RP::Grid<int>& grid) {
+static void createRandomRectangles(RP::Grid<int>& grid) {
     int input;
     while (true) {
         std::cout << "Please enter the amount of rectangles to be randomly created: ";
