@@ -226,11 +226,33 @@ void checkIfPointInRectangle(const RP::Grid<int>& grid) {
     }
 }
 
+void createRandomRectangles(RP::Grid<int>& grid) {
+    int input;
+    while (true) {
+        std::cout << "Please enter the amount of rectangles to be randomly created: ";
+        if (!(std::cin >> input)) {
+            std::cout << "Illegal input: must be a number between 0 and 25" << std::endl;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        else if (input < 0 || input > 25) {
+            std::cout << "Illegal input: " << input << " is not a number between 0 and 25" << std::endl;
+        }
+        else {
+            break;
+        }
+    }
+    RP::RectGenerator<int> rectGenerator;
+    for (unsigned int i = 0; i < input; i++) {
+        rectGenerator.addRandomRectangleToGrid(grid);
+    }
+}
+
 int main() {
     RP::Grid<int> grid{600, 400};
     clearScreen();
-    RP::RectGenerator<int> rectGenerator;
-    rectGenerator.addRandomRectangleToGrid(grid);
+    createRandomRectangles(grid);
+    clearScreen();
     for (;;) {
         std::cout << "Rectangle Program Menu Options\n------------------------------\n"
                   << "1. Print rectangles\n"
