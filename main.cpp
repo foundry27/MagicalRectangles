@@ -1,6 +1,11 @@
 #include <iostream>
 #include <limits>
 #include <locale>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <exception>
+#include <ctime>
 #include "rp/vector2.hpp"
 #include "rp/shape.hpp"
 #include "rp/rectangle.hpp"
@@ -248,7 +253,103 @@ static void createRandomRectangles(RP::Grid<int>& grid) {
     }
 }
 
+namespace {
+
+    struct IllegalFormatError {
+        const std::string what;
+    };
+
+}
+
+std::vector<std::string> stringSplit(const std::string& str, const char delim) {
+    std::vector<std::string> strings;
+    std::istringstream iss(str);
+
+    for (std::string s; std::getline(iss, s, delim);) {
+        strings.push_back(s);
+    }
+    return strings;
+}
+
+std::string trimString(const std::string& str, char c) {
+    std::string trimmed;
+    std::string::const_iterator i;
+    for (i = str.begin(); i != str.end() && *i == c; i++);
+    for (; i != str.end() && *i != c; i++) trimmed += *i;
+    return trimmed;
+}
+
+RP::Vector2<int> stringToPoint(const std::string& str) {
+    std::string trimmed = trimString(trimString(str, '('), ')');
+    std::vector<std::string> coordinates = stringSplit(trimmed, ',');
+    try {
+        return { std::stoi(coordinates[0], nullptr, 10), std::stoi(coordinates[1], nullptr, 10) };
+    } catch (const std::invalid_argument& e) {
+        throw IllegalFormatError();
+    } catch (const std::out_of_range& e) {
+        throw IllegalFormatError();
+    }
+}
+
+static RP::Rectangle<int> parseRectString(const std::string& str) {
+    std::vector<std::string> splitString = stringSplit(str, ';');
+    if (splitString.size() != 3) {
+        throw IllegalFormatError();
+    }
+    if (splitString.at(0).size() != 4) {
+        throw IllegalFormatError();
+    }
+    RP::Vector2<int> bottomLeft = stringToPoint(splitString.at(1));
+    RP::Vector2<int> topRight = stringToPoint(splitString.at(2));
+
+    return { std::move(bottomLeft), std::move(topRight), std::move(splitString.at(0)) };
+}
+
+static std::vector<RP::Rectangle<int>> readRectanglesFromStream(std::istream& in) {
+    std::vector<RP::Rectangle<int>> rectangles;
+    for (std::string input; std::getline(in, input, '\n');) {
+        try {
+            rectangles.push_back(parseRectString(input));
+        } catch (const IllegalFormatError& e) {
+            std::cout << "Line " << input << " ignored due to illegal format." << std::endl;
+        }
+    }
+    return rectangles;
+}
+
+static void readRectanglesFromStreamToGrid(std::istream&& in, RP::Grid<int>& grid) {
+    std::vector<RP::Rectangle<int>> rectangles = readRectanglesFromStream(in);
+
+    for (const auto& rect : rectangles) {
+        try {
+            grid.addRectangle(std::move(rect));
+        } catch (const RP::IllegalNameError& e) {
+            std::cout << "Rectangle " << rect.toString() << " was ignored due to a name conflict." << std::endl;
+
+        } catch (const RP::IllegalSizeError& e) {
+            std::cout << "Rectangle " << rect.toString() << " was ignored because it has illegal size:\n" << e.what << std::endl;
+        }
+    }
+}
+
+static void readRectanglesFromUserFile(RP::Grid<int>& grid) {
+    while (true) {
+        std::string input;
+        std::cout << "Please enter a valid file name: ";
+        std::cin >> input;
+        std::ifstream file(input);
+        if (!file) {
+            std::cout << "File name \"" << input << "\" invalid: No such file exists." << std::endl;
+        }
+        else {
+            readRectanglesFromStreamToGrid(std::move(file), grid);
+            break;
+        }
+    }
+}
+
 int main() {
+    srand(time(nullptr));
     RP::Grid<int> grid{600, 400};
     clearScreen();
     createRandomRectangles(grid);
@@ -262,12 +363,12 @@ int main() {
                   << "5. Find rectangle union\n"
                   << "6. Sort rectangles by name\n"
                   << "7. Check if point in rectangle\n"
-                  << "8. Quit\n";
+                  << "8. Load rectangles from file name\n"
+                  << "9. Quit\n";
         std::cout << "Enter an option: ";
         int input;
-        std::cout << std::endl;
         if (!(std::cin >> input)) {
-            std::cout << "\nIllegal input: must be a number between 1 and 8." << std::endl;
+            std::cout << "Illegal input: must be a number between 1 and 9." << std::endl;
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         } else {
@@ -294,10 +395,22 @@ int main() {
                     checkIfPointInRectangle(grid);
                     break;
                 case 8:
+                    try {
+                        readRectanglesFromUserFile(grid);
+                    } catch (...) {
+                        const auto e = std::current_exception();
+                        try {
+                            std::rethrow_exception(e);
+                        } catch (const std::exception& e2) {
+                            std::cout << e2.what() << std::endl;
+                        }
+                    }
+                    break;
+                case 9:
                     std::cout << "Goodbye.";
                     return 0;
                 default:
-                    std::cout << "Illegal option '" << input << "': Must be between 1 and 8." << std::endl;
+                    std::cout << "Illegal option '" << input << "': Must be between 1 and 9." << std::endl;
                     break;
             }
         }
