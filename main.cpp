@@ -127,6 +127,10 @@ static void removeRectangleFromGrid(RP::Grid<int>& grid) {
 }
 
 static void getRectangleIntersection(RP::Grid<int>& grid) {
+    if (grid.size() < 2) {
+        std::cout << "Need at least 2 rectangles to perform this action." << std::endl;
+        return;
+    }
     for (;;) {
         std::cout << "Enter the name of the first rectangle: ";
         std::string firstRectName;
@@ -160,6 +164,10 @@ static void getRectangleIntersection(RP::Grid<int>& grid) {
 }
 
 static void getRectangleUnion(RP::Grid<int>& grid) {
+    if (grid.size() < 2) {
+        std::cout << "Need at least 2 rectangles to perform this action." << std::endl;
+        return;
+    }
     for (;;) {
         std::cout << "Enter the name of the first rectangle: ";
         std::string firstRectName;
@@ -190,6 +198,10 @@ static void getRectangleUnion(RP::Grid<int>& grid) {
 }
 
 static void checkIfPointInRectangle(const RP::Grid<int>& grid) {
+    if (grid.size() < 1) {
+        std::cout << "Need at least 1 rectangle to perform this action." << std::endl;
+        return;
+    }
     for (;;) {
         std::cout << "Enter the name of the rectangle to check: ";
         std::string rectName;
