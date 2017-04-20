@@ -4,12 +4,13 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <exception>
+#include <ctime>
 #include "rp/vector2.hpp"
 #include "rp/shape.hpp"
 #include "rp/rectangle.hpp"
 #include "rp/grid.hpp"
 #include "rp/rect_generator.hpp"
-#include <exception>
 
 static inline void clearScreen() {
     system("clear");
@@ -348,6 +349,7 @@ static void readRectanglesFromUserFile(RP::Grid<int>& grid) {
 }
 
 int main() {
+    srand(time(nullptr));
     RP::Grid<int> grid{600, 400};
     clearScreen();
     createRandomRectangles(grid);
