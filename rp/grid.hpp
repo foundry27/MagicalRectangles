@@ -14,7 +14,13 @@ namespace RP {
     template <typename T>
     class Grid {
     public:
+        typedef typename std::map<std::string, Rectangle<T>>::size_type size_type;
+
         Grid(const T height, const T width) : height(height), width(width), rects({}) {}
+
+        const size_type size() const noexcept {
+            return rects.size();
+        }
 
         void forEach(const std::function<void (const Rectangle<T>&)> consumer) const noexcept {
             for (const auto& r : rects) {
