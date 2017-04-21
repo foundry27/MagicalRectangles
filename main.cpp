@@ -407,16 +407,7 @@ int main() {
                     checkIfPointInRectangle(grid);
                     break;
                 case 8:
-                    try {
-                        readRectanglesFromUserFile(grid);
-                    } catch (...) {
-                        const auto e = std::current_exception();
-                        try {
-                            std::rethrow_exception(e);
-                        } catch (const std::exception& e2) {
-                            std::cout << e2.what() << std::endl;
-                        }
-                    }
+                    readRectanglesFromUserFile(grid);
                     break;
                 case 9:
                     std::cout << "Goodbye.";
