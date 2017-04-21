@@ -303,12 +303,21 @@ RP::Vector2<int> stringToPoint(const std::string& str) {
     }
 }
 
+static inline bool validRectName(const std::string& name) {
+    for (const auto& c : name) {
+        if (!std::islower(c, {})) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static RP::Rectangle<int> parseRectString(const std::string& str) {
     std::vector<std::string> splitString = stringSplit(str, ';');
     if (splitString.size() != 3) {
         throw IllegalFormatError();
     }
-    if (splitString.at(0).size() != 4) {
+    if (splitString.at(0).size() != 4 || !validRectName(splitString.at(0))) {
         throw IllegalFormatError();
     }
     RP::Vector2<int> bottomLeft = stringToPoint(splitString.at(1));
@@ -407,16 +416,7 @@ int main() {
                     checkIfPointInRectangle(grid);
                     break;
                 case 8:
-                    try {
-                        readRectanglesFromUserFile(grid);
-                    } catch (...) {
-                        const auto e = std::current_exception();
-                        try {
-                            std::rethrow_exception(e);
-                        } catch (const std::exception& e2) {
-                            std::cout << e2.what() << std::endl;
-                        }
-                    }
+                    readRectanglesFromUserFile(grid);
                     break;
                 case 9:
                     std::cout << "Goodbye.";
