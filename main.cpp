@@ -13,12 +13,20 @@
 #include "rp/rect_generator.hpp"
 
 static inline void clearScreen() {
-    system("clear");
+    #if defined(__linux__) || defined(__CYGWIN__)
+        system("clear");
+    #elif defined (_WIN32) || defined(_WIN64)
+        system("cls");
+    #endif
 }
 
 static inline void promptForEnterKeyAndAdvanceLine() {
-    std::cout << "Press enter to continue." << std::flush;
-    system("read");
+    #if defined(__linux__) || defined(__CYGWIN__)
+        std::cout << "Press enter to continue." << std::flush;
+        system("read");
+    #elif defined(_WIN32) || defined(_WIN64)
+        system("PAUSE");
+    #endif
     std::cout << std::endl;
 }
 
@@ -260,7 +268,7 @@ static void createRandomRectangles(RP::Grid<int>& grid) {
         }
     }
     RP::RectGenerator<int> rectGenerator;
-    for (unsigned int i = 0; i < input; i++) {
+    for (int i = 0; i < input; i++) {
         rectGenerator.addRandomRectangleToGrid(grid);
     }
 }
